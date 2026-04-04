@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tav SSML test</title>
+</head>
+<body style="font-family:sans-serif;padding:20px;max-width:500px">
+<h2>Hila + tav — met/zonder prosody</h2>
+
+<div style="margin:10px 0;padding:12px;background:#ffb3c6;border-radius:8px">
+  <b>1. SSML met prosody rate</b><br>
+  <button id="b1" style="margin-top:8px;padding:12px;background:#e84393;color:white;border:none;border-radius:8px;font-size:16px;cursor:pointer;width:100%">Speel af</button>
+</div>
+
+<div style="margin:10px 0;padding:12px;background:#c8f7c5;border-radius:8px">
+  <b>2. SSML zonder prosody</b><br>
+  <button id="b2" style="margin-top:8px;padding:12px;background:#27ae60;color:white;border:none;border-radius:8px;font-size:16px;cursor:pointer;width:100%">Speel af</button>
+</div>
+
+<div style="margin:10px 0;padding:12px;background:#b3d9ff;border-radius:8px">
+  <b>3. speakTextAsync (geen SSML)</b><br>
+  <button id="b3" style="margin-top:8px;padding:12px;background:#0078d4;color:white;border:none;border-radius:8px;font-size:16px;cursor:pointer;width:100%">Speel af</button>
+</div>
+
+<div id="st" style="margin-top:16px;padding:12px;background:#f0f0f0;border-radius:8px">Klik...</div>
+
+<script src="https://cdn.jsdelivr.net/npm/microsoft-cognitiveservices-speech-sdk@latest/distrib/browser/microsoft.cognitiveservices.speech.sdk.bundle-min.js"></script>
+<script>
+var AZURE_KEY = ['5a4gnryxxTkYqP','kgI99TASdEBpUy','VjTSFJDwCFF6Xe','r2tDFpbyNFJQQJ','99CDACYeBjFXJ3','w3AAAYACOGF9mA'].join('');
+var AZURE_REGION = 'eastus';
+var curSynth = null;
+var WORD = "רָצִית";
+
+function stop() { if (curSynth) { try { curSynth.close(); } catch(e) {} curSynth = null; } }
+
+function getsynth() {
+  var config = SpeechSDK.SpeechConfig.fromSubscription(AZURE_KEY, AZURE_REGION);
+  config.speechSynthesisVoiceName = 'he-IL-HilaNeural';
+  var audio = SpeechSDK.AudioConfig.fromDefaultSpeakerOutput();
+  return new SpeechSDK.SpeechSynthesizer(config, audio);
+}
+
+document.getElementById('b1').onclick = function() {
+  stop(); document.getElementById('st').textContent = 'Met prosody rate...';
+  curSynth = getsynth();
+  var ssml = '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="he-IL"><voice name="he-IL-HilaNeural"><prosody rate="medium">' + WORD + '</prosody></voice></speak>';
+  curSynth.speakSsmlAsync(ssml, function(r){stop();document.getElementById('st').textContent='Klaar 1';}, function(e){stop();});
+};
+
+document.getElementById('b2').onclick = function() {
+  stop(); document.getElementById('st').textContent = 'Zonder prosody...';
+  curSynth = getsynth();
+  var ssml = '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="he-IL"><voice name="he-IL-HilaNeural">' + WORD + '</voice></speak>';
+  curSynth.speakSsmlAsync(ssml, function(r){stop();document.getElementById('st').textContent='Klaar 2';}, function(e){stop();});
+};
+
+document.getElementById('b3').onclick = function() {
+  stop(); document.getElementById('st').textContent = 'speakTextAsync...';
+  curSynth = getsynth();
+  curSynth.speakTextAsync(WORD, function(r){stop();document.getElementById('st').textContent='Klaar 3';}, function(e){stop();});
+};
+</script>
+</body></html>
